@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: jaeger-test-go
+  name: jaeger-test-go
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaeger-test-go
+  template:
+    metadata:
+      labels:
+        app: jaeger-test-go
+    spec:
+      containers:
+      - image: tasslin/jaeger-go-test
+        imagePullPolicy: Always
+        name: jaeger-test-go
+        ports:
+        - containerPort: 8080
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-test-go
+  labels:
+    app: jaeger-test-go
+spec:
+  ports:
+    - port: 8080
+      name: http
+  selector:
+    app: jaeger-test-go
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: jaeger-test-go
+  annotations:
+    kubernetes.io/ingress.class: "istio"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: jaeger-test-go
+          servicePort: 8080
+      - path: /gettime
+        backend:
+          serviceName: jaeger-test-go
+          servicePort: 8080
