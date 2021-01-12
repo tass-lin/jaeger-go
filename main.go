@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/uber/jaeger-client-go"
 	"log"
 	"net/http"
 	"runtime"
@@ -9,8 +10,8 @@ import (
 
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	opentracing "github.com/opentracing/opentracing-go"
-	jaeger "github.com/uber/jaeger-client-go"
-	"github.com/uber/jaeger-client-go/zipkin"
+	zipkintransport "github.com/uber/jaeger-client-go/transport/zipkin"
+	zipkin "github.com/uber/jaeger-client-go/zipkin"
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +32,7 @@ func main() {
 
 	// Zipkin shares span ID between client and server spans; it must be enabled via the following option.
 	zipkinSharedRPCSpan := jaeger.TracerOptions.ZipkinSharedRPCSpan(true)
-
+	// sender, _ := zipkintransport.NewHTTPTransport("http://")
 	sender, _ := jaeger.NewUDPTransport("jaeger-agent.istio-system:5775", 0)
 	tracer, closer := jaeger.NewTracer(
 		"jaeger-test-go",
